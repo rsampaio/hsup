@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"fmt"
+
 	"github.com/fsouza/go-dockerclient"
 )
 
@@ -46,9 +47,10 @@ type Executor struct {
 	container *docker.Container
 
 	// libcontainer dyno driver properties
-	lcStatus    chan *ExitStatus
-	waitStartup chan struct{}
-	waitWait    chan struct{}
+	lcStatus      chan *ExitStatus
+	waitStartup   chan struct{}
+	waitWait      chan struct{}
+	containerUUID string
 
 	// FSM Fields
 	OneShot  bool

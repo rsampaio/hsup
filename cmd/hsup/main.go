@@ -200,18 +200,6 @@ func main() {
 	args := flag.Args()
 
 	log.Println("Args:", args, "LLArgs:", os.Args)
-	irData := os.Getenv("HSUP_INITRETURN_DATA")
-	if irData != "" {
-		// Used only with libcontainer Exec to set up
-		// namespaces and the like.  This *will* clear
-		// environment variables and Args from
-		// "CreateCommand", so be sure to be done processing
-		// or storing them before executing.
-		log.Println("running InitReturns")
-		if err := hsup.MustInit(irData); err != nil {
-			log.Fatal(err)
-		}
-	}
 
 	if len(args) == 0 {
 		flag.Usage()
@@ -240,16 +228,6 @@ func main() {
 	dynoDriver, err := hsup.FindDynoDriver(*dynoDriverName)
 	if err != nil {
 		log.Fatalln("could not initiate dyno driver:", err.Error())
-	}
-
-	// Inject information for delegation purposes to a
-	// LibContainerDynoDriver.
-	switch dd := dynoDriver.(type) {
-	case *hsup.LibContainerDynoDriver:
-		dd.EnvFill()
-		dd.Args = args
-		dd.AppName = *appName
-		dd.Concurrency = *concurrency
 	}
 
 	var poller hsup.Notifier

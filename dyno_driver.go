@@ -2,7 +2,6 @@ package hsup
 
 import (
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -22,6 +21,7 @@ type Release struct {
 	appName string
 	config  map[string]string
 	slugURL string
+	stack   string
 	version int
 
 	// docker dyno driver properties
@@ -69,26 +69,9 @@ func FindDynoDriver(name string) (DynoDriver, error) {
 	case "abspath":
 		return &AbsPathDynoDriver{}, nil
 	case "libcontainer":
-		newRoot := os.Getenv("HSUP_NEWROOT")
-		if newRoot == "" {
-			return nil, fmt.Errorf("HSUP_NEWROOT empty")
-		}
-
-		hostname := os.Getenv("HSUP_HOSTNAME")
-		if hostname == "" {
-			return nil, fmt.Errorf("HSUP_HOSTNAME empty")
-		}
-
-		user := os.Getenv("HSUP_USER")
-		if user == "" {
-			return nil, fmt.Errorf("HSUP_USER empty")
-		}
-
-		return &LibContainerDynoDriver{
-			NewRoot:  newRoot,
-			User:     user,
-			Hostname: hostname,
-		}, nil
+		return NewLibContainerDynoDriver("/var/lib/hsup")
+	case "libcontainer-init":
+		return &LibContainerInitDriver{}, nil
 	default:
 		return nil, fmt.Errorf("could not locate driver. "+
 			"specified by the user: %v", name)
